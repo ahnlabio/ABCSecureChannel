@@ -11,7 +11,7 @@ import CryptoKit
 import CryptoSwift
 import ABCUtils
 
-class SecureChannel {
+final class SecureChannel {
     public let host: URL
     public let privateKey = P256.KeyAgreement.PrivateKey()
     public var publicKey: P256.KeyAgreement.PublicKey { privateKey.publicKey }

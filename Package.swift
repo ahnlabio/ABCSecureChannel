@@ -10,7 +10,6 @@ let package = Package(
     ],
     products: [
         .library(name: "ABCSecureChannel", targets: ["ABCSecureChannel"]),
-        .library(name: "ABCUtils", targets: ["ABCUtils"])
     ],
     dependencies: [
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.0"),
