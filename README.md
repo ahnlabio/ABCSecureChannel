@@ -24,6 +24,8 @@ public struct Decryption {
 import ABCSecureChannel
 
 let channelManager = SecureChannelManager(host: "https://dev-api.id.myabcwallet.com")
+
+// MARK: Encrypt single value
 channelManager.encrypt(plain: password) { result in
     switch result {
         case .success(let encryption):
@@ -33,9 +35,40 @@ channelManager.encrypt(plain: password) { result in
     }
 }
 
-channelManager.decrypt(encrypted: message) { result in
+// MARK: Encrypt multiple values
+let targets: [String: String] = [
+    "password": "Hello",
+    "key": "World"
+]
+
+channelManager.encrypt(targets: targets) { result in
     switch result {
         case .success(let encryption):
+            // TODO: use callback Decrypted Model
+        case .failure(let error):
+            // TODO: handle Error
+    }
+}
+
+// MARK: Decrypt single value
+channelManager.decrypt(encrypted: message) { result in
+    switch result {
+        case .success(let decryption):
+            // TODO: use callback Decrypted Model
+        case .failure(let error):
+            // TODO: handle Error
+    }
+}
+
+// MARK: Decrypt multiple values
+let targets: [String: String] = [
+    "password": "E0QV209EU2g2lK4Mv1k7Xw==",
+    "key": "NUzRHR7w71t5l9jeB23Kww=="
+]
+
+channelManager.decrypt(targets: targets) { result in
+    switch result {
+        case .success(let decryption):
             // TODO: use callback Decrypted Model
         case .failure(let error):
             // TODO: handle Error

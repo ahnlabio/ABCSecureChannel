@@ -16,15 +16,27 @@ extension SecureChannelManager {
         }
     }
     
-    public func encrypt(plain: String) async throws -> Encryption {
+    public func encrypt(plain: String) async throws -> Encryption<String> {
         try await withCheckedThrowingContinuation {
             encrypt(plain: plain, completion: $0.resume)
         }
     }
     
-    public func decrypt(encrypted: String) async throws -> Decryption {
+    public func decrypt(encrypted: String) async throws -> Decryption<String> {
         try await withCheckedThrowingContinuation {
             decrypt(encrypted: encrypted, completion: $0.resume)
+        }
+    }
+    
+    public func encrypt(targets: [String: String]) async throws -> Encryption<[String: String]> {
+        try await withCheckedThrowingContinuation {
+            encrypt(targets: targets, completion: $0.resume)
+        }
+    }
+    
+    public func decrypt(targets: [String: String]) async throws -> Decryption<[String: String]> {
+        try await withCheckedThrowingContinuation {
+            decrypt(targets: targets, completion: $0.resume)
         }
     }
 }
@@ -40,7 +52,7 @@ extension SecureChannelManager {
         .eraseToAnyPublisher()
     }
     
-    public func encrypt(plain: String) -> AnyPublisher<Encryption, Error> {
+    public func encrypt(plain: String) -> AnyPublisher<Encryption<String>, Error> {
         Deferred {
             Future {
                 self.encrypt(plain: plain, completion: $0)
@@ -49,10 +61,28 @@ extension SecureChannelManager {
         .eraseToAnyPublisher()
     }
     
-    public func decrypt(encrypted: String) -> AnyPublisher<Decryption, Error> {
+    public func encrypt(targets: [String: String]) -> AnyPublisher<Encryption<[String: String]>, Error> {
+        Deferred {
+            Future {
+                self.encrypt(targets: targets, completion: $0)
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    public func decrypt(encrypted: String) -> AnyPublisher<Decryption<String>, Error> {
         Deferred {
             Future {
                 self.decrypt(encrypted: encrypted, completion: $0)
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    public func decrypt(targets: [String: String]) -> AnyPublisher<Decryption<[String: String]>, Error> {
+        Deferred {
+            Future {
+                self.decrypt(targets: targets, completion: $0)
             }
         }
         .eraseToAnyPublisher()

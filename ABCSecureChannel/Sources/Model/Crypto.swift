@@ -8,14 +8,14 @@
 
 import Foundation
 
-public struct Encryption {
-    public let origin: String
-    public let encrypted: String
+public struct Encryption<T> {
+    public let origin: T
+    public let encrypted: T
     public let channelId: String
 }
 
-public struct Decryption {
-    public let encrypted: String
-    public let decrypted: String
+public struct Decryption<T> {
+    public let encrypted: T
+    public let decrypted: T
     public let channelId: String
 }

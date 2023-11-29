@@ -43,4 +43,26 @@ final class SecureChannelTests: XCTestCase {
         
         wait(for: [expectCreateSession])
     }
+    
+    func testEncryptMultipleValues() {
+        let expectCreateSession = expectation(description: "Encrypt Message")
+        
+        let targets = [
+            "password": "Hello",
+            "key": "World"
+        ]
+        let manager = SecureChannelManager(host: "https://dev-api.id.myabcwallet.com")
+        manager.encrypt(targets: targets) { result in
+            switch result {
+            case .success(let encryption):
+                XCTAssertNotNil(encryption.encrypted["password"])
+                XCTAssertNotNil(encryption.encrypted["key"])
+            case .failure(let error):
+                XCTFail(error.localizedDescription)
+            }
+            expectCreateSession.fulfill()
+        }
+        
+        wait(for: [expectCreateSession])
+    }
 }

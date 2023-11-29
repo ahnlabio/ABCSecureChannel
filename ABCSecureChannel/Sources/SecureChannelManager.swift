@@ -26,14 +26,13 @@ public final class SecureChannelManager {
         self.current = SecureChannel(host: hostUrl)
     }
     
-    public func encrypt(plain: String, completion: @escaping (Result<Encryption, Error>) -> Void) {
+    public func encrypt(targets: [String: String], completion: @escaping (Result<Encryption<[String: String]>, Error>) -> Void) {
         self.getSharedSecret { result in
             switch result {
             case .success(let secret):
                 do {
-                    let encrypted = try secret.shared.encrypt(plain: plain)
-                    let encryption = Encryption(origin: plain, encrypted: encrypted, channelId: secret.channelId)
-                    
+                    let result = try targets.mapValues(secret.shared.encrypt)
+                    let encryption = Encryption(origin: targets, encrypted: result, channelId: secret.channelId)
                     completion(.success(encryption))
                 } catch {
                     completion(.failure(error))
@@ -45,7 +44,44 @@ public final class SecureChannelManager {
         }
     }
     
-    public func decrypt(encrypted: String, completion: @escaping (Result<Decryption, Error>) -> Void) {
+    public func encrypt(plain: String, completion: @escaping (Result<Encryption<String>, Error>) -> Void) {
+        self.getSharedSecret { result in
+            switch result {
+            case .success(let secret):
+                do {
+                    let result = try secret.shared.encrypt(plain: plain)
+                    let encryption = Encryption(origin: plain, encrypted: result, channelId: secret.channelId)
+                    completion(.success(encryption))
+                } catch {
+                    completion(.failure(error))
+                }
+                
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    public func decrypt(targets: [String: String], completion: @escaping (Result<Decryption<[String: String]>, Error>) -> Void) {
+        self.getSharedSecret { result in
+            switch result {
+            case .success(let secret):
+                do {
+                    let result = try targets.mapValues(secret.shared.decrypt)
+                    let decryption = Decryption(encrypted: targets, decrypted: result, channelId: secret.channelId)
+                    
+                    completion(.success(decryption))
+                } catch {
+                    completion(.failure(error))
+                }
+                
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    public func decrypt(encrypted: String, completion: @escaping (Result<Decryption<String>, Error>) -> Void) {
         self.getSharedSecret { result in
             switch result {
             case .success(let secret):
