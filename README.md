@@ -23,18 +23,32 @@ public struct Decryption {
 ```swift
 import ABCSecureChannel
 
-let url = URL(string: "https://dev-api.id.myabcwallet.com")!
-let channelManager = SecureChannelManager(host: url)
-channelManager.encrypt(plain: password) { encryption in
-    // TODO: use callback Encrypted Model
+let channelManager = SecureChannelManager(host: "https://dev-api.id.myabcwallet.com")
+channelManager.encrypt(plain: password) { result in
+    switch result {
+        case .success(let encryption):
+            // TODO: use callback Encrypted Model
+        case .failure(let error):
+            // TODO: handle Error
+    }
 }
 
-channelManager.decrypt(encrypted: message) { decryption in
-    // TODO: use callback Decrypted Model
+channelManager.decrypt(encrypted: message) { result in
+    switch result {
+        case .success(let encryption):
+            // TODO: use callback Decrypted Model
+        case .failure(let error):
+            // TODO: handle Error
+    }
 }
 
-channelManager.channelId() { channelId in
-    // ...
+channelManager.channelId() { result in
+    switch result {
+        case .success(let channelId):
+            // ...
+        case .failure(let error):
+            // TODO: handle Error
+    }
 }
 ```
 
@@ -44,8 +58,7 @@ channelManager.channelId() { channelId in
 import ABCSecureChannel
 import Combine
 
-let url = URL(string: "https://dev-api.id.myabcwallet.com")!
-let channelManager = SecureChannelManager(host: url)
+let channelManager = SecureChannelManager(host: "https://dev-api.id.myabcwallet.com")
 
 channelManager
     .encrypt(plain: password)
@@ -72,8 +85,7 @@ channelManager
 ```swift
 import ABCSecureChannel
 
-let url = URL(string: "https://dev-api.id.myabcwallet.com")!
-let channelManager = SecureChannelManager(host: url)
+let channelManager = SecureChannelManager(host: "https://dev-api.id.myabcwallet.com")
 
 Task {
     let encryption = try await channelManager.encrypt(plain: password)
