@@ -8,10 +8,15 @@
 
 import Foundation
 import CryptoKit
+import ABCUtils
 
-enum SecureChannelManagerError: Error {
+public enum SecureChannelManagerError: Error {
     case invalidChannel
     case selfReleased
+    case networkError(error: NetworkError.Response)
+    case invalidSharedSecret
+    case decryptionError
+    case encryptionError
 }
 
 public final class SecureChannelManager {
@@ -26,7 +31,7 @@ public final class SecureChannelManager {
         self.current = SecureChannel(host: hostUrl)
     }
     
-    public func encrypt(targets: [String: String], completion: @escaping (Result<Encryption<[String: String]>, Error>) -> Void) {
+    public func encrypt(targets: [String: String], completion: @escaping (Result<Encryption<[String: String]>, SecureChannelManagerError>) -> Void) {
         self.getSharedSecret { result in
             switch result {
             case .success(let secret):
@@ -35,7 +40,7 @@ public final class SecureChannelManager {
                     let encryption = Encryption(origin: targets, encrypted: result, channelId: secret.channelId)
                     completion(.success(encryption))
                 } catch {
-                    completion(.failure(error))
+                    completion(.failure(SecureChannelManagerError.encryptionError))
                 }
                 
             case .failure(let error):
@@ -44,7 +49,7 @@ public final class SecureChannelManager {
         }
     }
     
-    public func encrypt(plain: String, completion: @escaping (Result<Encryption<String>, Error>) -> Void) {
+    public func encrypt(plain: String, completion: @escaping (Result<Encryption<String>, SecureChannelManagerError>) -> Void) {
         self.getSharedSecret { result in
             switch result {
             case .success(let secret):
@@ -53,7 +58,7 @@ public final class SecureChannelManager {
                     let encryption = Encryption(origin: plain, encrypted: result, channelId: secret.channelId)
                     completion(.success(encryption))
                 } catch {
-                    completion(.failure(error))
+                    completion(.failure(SecureChannelManagerError.encryptionError))
                 }
                 
             case .failure(let error):
@@ -62,7 +67,7 @@ public final class SecureChannelManager {
         }
     }
     
-    public func decrypt(targets: [String: String], completion: @escaping (Result<Decryption<[String: String]>, Error>) -> Void) {
+    public func decrypt(targets: [String: String], completion: @escaping (Result<Decryption<[String: String]>, SecureChannelManagerError>) -> Void) {
         self.getSharedSecret { result in
             switch result {
             case .success(let secret):
@@ -72,7 +77,7 @@ public final class SecureChannelManager {
                     
                     completion(.success(decryption))
                 } catch {
-                    completion(.failure(error))
+                    completion(.failure(SecureChannelManagerError.decryptionError))
                 }
                 
             case .failure(let error):
@@ -81,7 +86,7 @@ public final class SecureChannelManager {
         }
     }
     
-    public func decrypt(encrypted: String, completion: @escaping (Result<Decryption<String>, Error>) -> Void) {
+    public func decrypt(encrypted: String, completion: @escaping (Result<Decryption<String>, SecureChannelManagerError>) -> Void) {
         self.getSharedSecret { result in
             switch result {
             case .success(let secret):
@@ -91,7 +96,7 @@ public final class SecureChannelManager {
                     
                     completion(.success(decryption))
                 } catch {
-                    completion(.failure(error))
+                    completion(.failure(SecureChannelManagerError.decryptionError))
                 }
                 
             case .failure(let error):
@@ -100,18 +105,18 @@ public final class SecureChannelManager {
         }
     }
     
-    public func getChannelId(completion: @escaping (Result<String, Error>) -> Void) {
+    public func getChannelId(completion: @escaping (Result<String, SecureChannelManagerError>) -> Void) {
         self.getSecureChannel { result in
             switch result {
             case .success(let channel):
                 completion(.success(channel.channelId))
             case .failure(let error):
-                completion(.failure(error))
+                completion(.failure(SecureChannelManagerError.networkError(error: error)))
             }
         }
     }
     
-    private func getSharedSecret(completion: @escaping (Result<Secret, Error>) -> Void) {
+    private func getSharedSecret(completion: @escaping (Result<Secret, SecureChannelManagerError>) -> Void) {
         self.getSecureChannel {[weak self] result in
             guard let this = self else {
                 completion(.failure(SecureChannelManagerError.selfReleased))
@@ -128,10 +133,10 @@ public final class SecureChannelManager {
                     completion(.success(secret))
                     
                 } catch {
-                    completion(.failure(error))
+                    completion(.failure(SecureChannelManagerError.invalidSharedSecret))
                 }
             case .failure(let error):
-                completion(.failure(error))
+                completion(.failure(SecureChannelManagerError.networkError(error: error)))
             }
         }
     }
@@ -149,7 +154,7 @@ public final class SecureChannelManager {
         return sharedSecret
     }
     
-    private func getSecureChannel(completion: @escaping (Result<SecureChannel.Response, Error>) -> Void) {
+    private func getSecureChannel(completion: @escaping (Result<SecureChannel.Response, NetworkError.Response>) -> Void) {
         if
             let response = self.current.serverResponse,
             self.current.isValid(expired: self.retentionTime) {

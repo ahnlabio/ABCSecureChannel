@@ -43,7 +43,7 @@ extension SecureChannelManager {
 
 extension SecureChannelManager {
     
-    public func getChannelId() -> AnyPublisher<String, Error> {
+    public func getChannelId() -> AnyPublisher<String, SecureChannelManagerError> {
         Deferred {
             Future {
                 self.getChannelId(completion: $0)
@@ -52,7 +52,7 @@ extension SecureChannelManager {
         .eraseToAnyPublisher()
     }
     
-    public func encrypt(plain: String) -> AnyPublisher<Encryption<String>, Error> {
+    public func encrypt(plain: String) -> AnyPublisher<Encryption<String>, SecureChannelManagerError> {
         Deferred {
             Future {
                 self.encrypt(plain: plain, completion: $0)
@@ -61,7 +61,7 @@ extension SecureChannelManager {
         .eraseToAnyPublisher()
     }
     
-    public func encrypt(targets: [String: String]) -> AnyPublisher<Encryption<[String: String]>, Error> {
+    public func encrypt(targets: [String: String]) -> AnyPublisher<Encryption<[String: String]>, SecureChannelManagerError> {
         Deferred {
             Future {
                 self.encrypt(targets: targets, completion: $0)
@@ -70,7 +70,7 @@ extension SecureChannelManager {
         .eraseToAnyPublisher()
     }
     
-    public func decrypt(encrypted: String) -> AnyPublisher<Decryption<String>, Error> {
+    public func decrypt(encrypted: String) -> AnyPublisher<Decryption<String>, SecureChannelManagerError> {
         Deferred {
             Future {
                 self.decrypt(encrypted: encrypted, completion: $0)
@@ -79,7 +79,7 @@ extension SecureChannelManager {
         .eraseToAnyPublisher()
     }
     
-    public func decrypt(targets: [String: String]) -> AnyPublisher<Decryption<[String: String]>, Error> {
+    public func decrypt(targets: [String: String]) -> AnyPublisher<Decryption<[String: String]>, SecureChannelManagerError> {
         Deferred {
             Future {
                 self.decrypt(targets: targets, completion: $0)

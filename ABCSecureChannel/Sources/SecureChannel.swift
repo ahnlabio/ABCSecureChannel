@@ -35,7 +35,7 @@ final class SecureChannel {
         return hasServerResponse && isNotExpired
     }
     
-    func create(completion: @escaping (Result<SecureChannel.Response, Error>) -> Void) {
+    func create(completion: @escaping (Result<SecureChannel.Response, NetworkError.Response>) -> Void) {
         self._create { [weak self] result in
             switch result {
             case .success(let response):
@@ -48,7 +48,7 @@ final class SecureChannel {
         }
     }
     
-    func _create(completion: @escaping (Result<SecureChannel.Response, Error>) -> Void) {
+    func _create(completion: @escaping (Result<SecureChannel.Response, NetworkError.Response>) -> Void) {
         
         let components = URLComponents(
             host: self.host,
@@ -63,10 +63,8 @@ final class SecureChannel {
             ]
         )
         
-
-        URLSession.shared.dataTask(with: request) {data, response, error in
-            URLSession.completionHandler(data: data, response: response, error: error, completion: completion)
-        }?.resume()
+        URLSession.shared.invoke(with: request, completion: completion)
+        
     }
 }
 

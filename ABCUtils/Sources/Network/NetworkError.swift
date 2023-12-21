@@ -14,6 +14,8 @@ public enum NetworkError {
     }
     
     public enum Response: LocalizedError {
+        case urlError(url: String?)
+        case serverError(Error)
         case invalidHttpResponse
         case emptyData
         case statusCodeError(status: Int, origin: String?, error: ABCNetworkError?)

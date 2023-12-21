@@ -65,4 +65,15 @@ final class SecureChannelTests: XCTestCase {
         
         wait(for: [expectCreateSession])
     }
+    
+    func testEncryptMultipleValues() async throws {        
+        let targets = [
+            "password": "Hello",
+            "key": "World"
+        ]
+        let manager = SecureChannelManager(host: "https://dev-api.id.myabcwallet.com")
+        let encrypted = try await manager.encrypt(targets: targets)
+        XCTAssertNotNil(encrypted.encrypted["password"])
+        XCTAssertNotNil(encrypted.encrypted["key"])
+    }
 }
