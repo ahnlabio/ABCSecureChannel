@@ -43,7 +43,7 @@ extension SharedSecret {
         }
         
         let aes = try getCipher()
-        let decryptedData = try aes.decrypt(base64Decoded.bytes)
+        let decryptedData = try aes.decrypt(base64Decoded.byteArray)
         if let decryptedString = String(bytes: decryptedData, encoding: .utf8) {
             return decryptedString
         }
