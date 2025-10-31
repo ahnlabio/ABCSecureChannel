@@ -18,6 +18,7 @@ extension URLSession {
         }
         
         self.dataTask(with: request) { data, response, error in
+            ABCNetworkLogger.printRequestLog(request, logStyle: .prettyJson)
             if let error = error {
                 completion?(.failure(NetworkError.Response.serverError(error)))
                 return
@@ -30,6 +31,7 @@ extension URLSession {
             }
             
             guard let responseData = data else {
+                ABCNetworkLogger.printResponseFailLog(response, logStyle: .prettyJson)
                 completion?(.failure(NetworkError.Response.emptyData))
                 return
             }
@@ -40,14 +42,17 @@ extension URLSession {
                 let status = response.statusCode
                 let errorObject = try? JSONDecoder().decode(ABCNetworkError.self, from: responseData)
                 let error = NetworkError.Response.statusCodeError(status: status, origin: origin, error: errorObject)
+                ABCNetworkLogger.printResponseFailLog(response, data: data, logStyle: .prettyJson)
                 completion?(.failure(error))
                 return
             }
             
             do {
                 let decodeItem = try JSONDecoder().decode(Item.self, from: responseData)
+                ABCNetworkLogger.printResponseLog(response, data: data, logStyle: .prettyJson)
                 completion?(.success(decodeItem))
             } catch {
+                ABCNetworkLogger.printResponseFailLog(response, data: data, logStyle: .prettyJson)
                 completion?(.failure(NetworkError.Response.objectDecodeError(origin: origin)))
             }
         }
@@ -63,6 +68,8 @@ extension URLSession {
         }
         
         self.dataTask(with: request) { data, response, error in
+            ABCNetworkLogger.printRequestLog(request, logStyle: .prettyJson)
+            
             if let error = error {
                 completion?(.failure(NetworkError.Response.serverError(error)))
                 return
@@ -75,6 +82,7 @@ extension URLSession {
             }
             
             guard let responseData = data else {
+                ABCNetworkLogger.printResponseFailLog(response, logStyle: .prettyJson)
                 completion?(.failure(NetworkError.Response.emptyData))
                 return
             }
@@ -85,10 +93,12 @@ extension URLSession {
                 let status = response.statusCode
                 let errorObject = try? JSONDecoder().decode(ABCNetworkError.self, from: responseData)
                 let error = NetworkError.Response.statusCodeError(status: status, origin: origin, error: errorObject)
+                ABCNetworkLogger.printResponseFailLog(response, logStyle: .prettyJson)
                 completion?(.failure(error))
                 return
             }
             
+            ABCNetworkLogger.printResponseLog(response, data: data, logStyle: .prettyJson)
             completion?(.success(()))
         }
         .resume()
